@@ -4,7 +4,7 @@ const multer = require('multer');
 const uuid = require('uuid');
 const path = require('path');
 const router = express.Router();
-
+const fs = require('fs');
 
 
 let avatarStorage = multer.diskStorage({
@@ -68,11 +68,26 @@ router.patch('/player/:id', async(req, res) => {
 router.put('/player/avatar/:id', upload.single('avatar'), async(req, res) => {
     const { id } = req.params;
     const { filename: image } = req.file;
-    const updateAvatar = await pool.query(
-        "UPDATE players SET avatar = $1 WHERE player_id = $2", [image, id]);
-    console.log(updateAvatar)
-    res.send('Avatar Updated').end();
+    const findUser = await pool.query('SELECT * FROM players WHERE player_id = $1', [id]);
+    if (findUser.rows && findUser.rows[0]) {
+        let user = findUser.rows[0];
+        if (user.avatar) {
+            const avatarPath = path.resolve('avatars/' + user.avatar);
+            console.log(avatarPath);
+            fs.unlink(avatarPath, () => {
+                console.log(`Removed avatar`)
+            });
+        }
+    } else {
+        res.status(400).send(`Cannot find user with ${id}`).end();
+    }
+    const updateAvatar = await pool.query("UPDATE players SET avatar = $1 WHERE player_id = $2", [image, id]);
+    // console.log(updateAvatar)
 
+    res.json({
+        status: "success",
+        message: " Updated avatar successfully"
+    }).end()
 
 });
 
