@@ -2,7 +2,7 @@ const http = require('http');
 const express = require('express');
 const morgan = require('morgan');
 const hostname = 'localhost';
-const port = 3000;
+const port = process.env.PORT || 3000;
 const playerRoute = require('../routes')
 
 const app = express();
