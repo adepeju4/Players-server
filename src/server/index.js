@@ -1,9 +1,10 @@
 const http = require('http');
 const express = require('express');
 const morgan = require('morgan');
-const hostname = 'localhost';
-const port = process.env.PORT || 3000;
-const playerRoute = require('../routes')
+const config = require('../config')
+const port = config.port;
+const playerRoute = require('../routes');
+
 
 const app = express();
 app.use(morgan('dev'));
@@ -17,8 +18,8 @@ app.use('/', playerRoute);
 const server = http.createServer(app);
 
 const startServer = () => {
-    server.listen(port, hostname, () => {
-        console.log(`Server running at http://${hostname}:${port}`);
+    server.listen(port, () => {
+        console.log(`Server running at ${port}`);
     });
 }
 
